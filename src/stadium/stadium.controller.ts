@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Query } from '@nestjs/common';
 import { StadiumService } from './stadium.service';
 
 @Controller('stadium')
@@ -14,10 +14,10 @@ export class StadiumController {
   }
   // @Query('teamname') teamName: string
 
-  @Get(':id')
-  async getStadiumDetailData(@Query('teamid') teamid: string) {
-    const tempID = parseInt(teamid);
-    const data = await this.stadiumService.getStadiumByTeamName(tempID);
+  @Get('/detail')
+  async getStadiumDetailData(@Body('teamname') teamname: string) {
+    const teamname = teamname;
+    const data = await this.stadiumService.getStadiumByTeamName(teamname);
     return data;
   }
 }

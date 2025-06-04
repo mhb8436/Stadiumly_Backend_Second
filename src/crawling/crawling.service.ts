@@ -57,6 +57,7 @@ export class CrawlingService {
   }
 
   // css 선택자로 크롤링하기
+  // 배포시 주석해제 @@
   // @Cron(CronExpression.EVERY_DAY_AT_6AM, {
   //   name: 'delete-old-pitcher',
   //   timeZone: 'Asia/Seoul',
@@ -67,6 +68,17 @@ export class CrawlingService {
 
     const browser = await puppeteer.launch({
       headless: true,
+      // 이 밑으로 배포시 주석해제
+      // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      // args: [
+      //   '--no-sandbox',
+      //   '--disable-setuid-sandbox',
+      //   '--disable-dev-shm-usage',
+      //   '--disable-accelerated-2d-canvas',
+      //   '--no-first-run',
+      //   '--no-zygote',
+      //   '--disable-gpu',
+      // ],
     });
 
     try {

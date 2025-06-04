@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GetStadiumDto } from './dto/stadium-list.dto';
 import { PrismaService } from 'src/prisma.service';
-import { GetStadiumByIDDto } from './dto/stadium-detailpage-data.dto';
+import { GetStadiumDetailDto } from './dto/stadium-detailpage-data.dto';
 
 @Injectable()
 export class StadiumService {
@@ -24,20 +24,29 @@ export class StadiumService {
     return data as GetStadiumDto[];
   }
 
-  async getStadiumByTeamName(teamId: number): Promise<GetStadiumByIDDto[]> {
-    const data = (await this.prisma.stadium.findMany({
+  async getStadiumByTeamName(teamname: string): Promise<GetStadiumDetailDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const data = await this.prisma.startPitcher.findFirst({
       where: {
-        sta_id: teamId,
+        pit_home_team: teamname,
       },
       select: {
-        sta_image: true,
-        sta_lati: true,
-        sta_long: true,
-        sta_name: true,
-        sta_team: true,
+        pit_broad_image: true,
+        pit_game_time: true,
+        pit_home_name: true,
+        pit_home_team: true,
+        pit_home_image: true,
+        pit_away_name: true,
+        pit_away_team: true,
+        pit_away_image: true,
+        pit_game_id: true,
       },
-    })) as GetStadiumByIDDto[];
+    });
 
-    return data;
+    if (!data) {
+      throw new Error(`No data found for team: ${teamname}`);
+    }
+
+    return data as GetStadiumDetailDto;
   }
 }
