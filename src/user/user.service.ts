@@ -16,18 +16,6 @@ export class UserService {
 
   // 이메일로 회원가입
   async signUpWithEmail(signupform: CreateUserNomalDto) {
-    const userEmail = signupform.user_email;
-    const isExist = await this.isExistEmail(userEmail);
-
-    if (isExist) {
-      // 사용 불가능 이메일
-      // 409 응답 보냄
-      throw new HttpException(
-        '이미 존재하는 이메일 입니다',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const salt = parseInt(
       this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
     );
@@ -36,6 +24,7 @@ export class UserService {
     // 랜덤 형용사 + 구단 마스코트 이름
     const userNick = randomNickMaker(signupform.user_like_staId);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const data = await this.prisma.user.create({
       data: {
         user_email: signupform.user_email,
@@ -93,7 +82,7 @@ export class UserService {
   }
 
   // 이미 존재하는 회원인지 이메일로 확인 && 같은 이메일로 회원가입한적 있는지 확인
-  private async isExistEmail(user_email: string) {
+  async isExistEmail(user_email: string) {
     const exist = await this.prisma.user.findFirst({
       where: {
         user_email: user_email,

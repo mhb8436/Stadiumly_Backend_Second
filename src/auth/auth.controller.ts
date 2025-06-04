@@ -14,9 +14,23 @@ export class AuthController {
     private userService: UserService,
   ) {}
 
+  // 이메일 중복확인 후 회원가입 버튼 눌렀을때
   @Post('email-signup')
   async signUpWithEmail(@Body() userformData: CreateUserNomalDto) {
     return this.authService.signUpWithEmail(userformData);
+  }
+
+  // 회원 가입페이지에서 이메일 중복확인
+  @Post('check-email-unique')
+  async checkEmailUnique(@Body() email: string) {
+    return this.authService.checkEmailUnique(email);
+  }
+
+  // 이메일 인증 코드 검증
+  // 본인 이메일인지 인증하기
+  @Post('email-token-check')
+  async checkEmailToken(@Body() email: string, emailToken: string) {
+    return this.authService.verifyCode(email, emailToken);
   }
 
   @Post('refresh')

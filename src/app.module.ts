@@ -13,6 +13,7 @@ import { CrawlingService } from './crawling/crawling.service';
 import { AzureStorageModule } from './azure-storage/azure-storage.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -29,6 +30,10 @@ import { MailModule } from './mail/mail.module';
     FileBlobModule,
     AzureStorageModule,
     MailModule,
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 0, // seconds
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, CrawlingService],

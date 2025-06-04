@@ -176,12 +176,12 @@ export class CrawlingService {
             return {
               homePitcher: getText('.team.home .today-pitcher p'),
               homeTeam: getImgAttr('.team.home .emb img', 'alt'),
-              homePitcherImg: `https:${getImgAttr2('.tbl-pitcher tbody tr:first-child td.pitcher .player-img img:not(.team)', 'src')}`,
+              homePitcherImg: `https:${getImgAttr2('.tbl-pitcher tbody tr:nth-child(2) td.pitcher .player-img img:not([class])', 'src')}`,
               // homeSecondImg: `${getImgAttr2('.tbl-pitcher tbody tr:first-child td.pitcher .player-img img.second', 'onerror')}`,
               // getAttribute
               awayPitcher: getText('.team.away .today-pitcher p'),
               awayTeam: getImgAttr('.team.away .emb img', 'alt'),
-              awayPitcherImg: `https:${getImgAttr2('.tbl-pitcher tbody tr:nth-child(2) td.pitcher .player-img img:not(.team)', 'src')}`,
+              awayPitcherImg: `https:${getImgAttr2('.tbl-pitcher tbody tr:first-child td.pitcher .player-img img:not([class])', 'src')}`, // 클래스가 없는 img만 선택하도록함 테스트 필요
               broadimage:
                 game_cont_top_li_count === 3
                   ? `https:${getImgAttr('.top li:nth-child(2) img', 'src')}`
