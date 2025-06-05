@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - '3000'
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sampler?schema=public
+      - JWT_SECRET=your_jwt_secret_here
+      - NODE_ENV=production
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+      - OLLAMA_BASE_URL=http://ollama:11434 # ollama 서비스 주소
+      - BCRYPT_SALT_ROUNDS=18
+
+      - JWT_SECRET=your_jwt_secret_here
+      - JWT_EXPIRE=your_jwt_expiration_time_here
+      - AZURE_STORAGE_STRING=your_azure_storage_connection_string_here
+      - AZURE_STORAGE_CONTAINER_NAME=your_azure_storage_container_name_here
+      - SEND_GRID_MAILER_API_KEY=your_sendgrid_api_key_here
+      - SEND_GRID_MAILER_FROM_EMAIL=your_sendgrid_from_email_here
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', 'http://localhost:3000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD', 'ollama', 'list']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  ollama-init:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - app-network
+    entrypoint: ['/bin/sh', '-c']
+    command: >
+      "echo 'Waiting for Ollama to be ready...' &&
+       sleep 10 &&
+       echo 'Pulling qwen3:1.7b model...' &&
+       OLLAMA_HOST=http://ollama:11434 ollama pull qwen3:1.7b &&
+       echo 'Model download completed!'"
+    restart: 'no'
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sampler
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command:
+      - 'postgres'
+      - '-c'
+      - 'max_connections=100'
+      - '-c'
+      - 'shared_buffers=256MB'
+
+volumes:
+  postgres_data:
+  ollama_data:
+
+networks:
+  app-network:
+    driver: bridge
