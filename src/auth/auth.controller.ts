@@ -17,6 +17,7 @@ import { CheckUniqueEmailDto } from './dto/email-unique.dto';
 import { CheckEmailTokenDto } from './dto/email-token.dto';
 import { CheckUniqueUserIdDto } from './dto/userid-unique.dto';
 import { findIdEmailVerifyDto } from './dto/find-id-email-verify.dto';
+import { changePwdVerifyDto } from './dto/change-pwd-verify.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -64,10 +65,20 @@ export class AuthController {
 
   //비밀번호 찾기
   @Post('find-pwd')
-  async findPassword(
-    @Body() body: { user_email: string; user_cus_id: string },
-  ) {
-    return this.authService.findPassword(body.user_email, body.user_cus_id);
+  async findPassword(@Body() body: { user_email: string }) {
+    return this.authService.findPassword(body.user_email);
+  }
+
+  // 비밀번호 찾기시 이메일 본인인증
+  @Post('find-pwd-email-verify')
+  async findPasswordEmailVerify(@Body() body: findIdEmailVerifyDto) {
+    return this.authService.findPwdEmailVerify(body.user_email, body.token);
+  }
+
+  // 비밀번호 바꿔주기~
+  @Post('find-pwd-update')
+  async updatePassword(@Body() body: changePwdVerifyDto) {
+    return this.authService.updatePassword(body.user_email, body.new_pwd);
   }
 
   // 이메일로 아이디 찾기
@@ -75,6 +86,7 @@ export class AuthController {
   async findUserId(@Body() body: { user_email: string }) {
     return this.authService.findUserId(body.user_email);
   }
+
   // 아이디 찾기시 이메일 본인인증
   @Post('find-id-email-verify')
   async findIdEmailVerify(@Body() body: findIdEmailVerifyDto) {

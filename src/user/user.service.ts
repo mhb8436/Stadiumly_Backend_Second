@@ -24,7 +24,7 @@ export class UserService {
     const hashedPWD = await bcrypt.hash(signupform.user_pwd, salt);
 
     // 랜덤 형용사 + 구단 마스코트 이름
-    const userNick = randomNickMaker(signupform.user_like_staId);
+    const userNick = randomNickMaker(signupform.user_like_staId).trim();
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const data = await this.prisma.user.create({
@@ -117,6 +117,25 @@ export class UserService {
   }
 
   async deleteUserById(user_id: number) {}
+
+  async updateUserPassword(user_email: string, new_pwd: string) {
+    console.log('유저 서비스 비번 바꾸기 들어옴 : ', user_email, new_pwd);
+    const salt = parseInt(
+      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
+    );
+    const hashedPWD = await bcrypt.hash(new_pwd, salt);
+
+    const result = this.prisma.user.update({
+      where: {
+        user_email: user_email,
+      },
+      data: {
+        user_pwd: hashedPWD,
+      },
+    });
+
+    return result;
+  }
 
   // 비밀번호 일치하는지 확인
   async comparePassword(plainPWD: string, hashedPWD: string): Promise<boolean> {

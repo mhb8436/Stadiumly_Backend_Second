@@ -5,7 +5,7 @@ export class CheckEmailTokenDto {
   @IsEmail()
   @ApiProperty({
     example: 'email@example.com',
-    description: '회원가입 요청보내기',
+    description: '토큰 발급때 입력한 이메일 변경 안됐는지 확인용',
   })
   email: string;
 

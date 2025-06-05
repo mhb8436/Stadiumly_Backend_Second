@@ -2,13 +2,13 @@
 CREATE TABLE "User" (
     "user_id" SERIAL NOT NULL,
     "user_cus_id" TEXT NOT NULL,
-    "user_email" TEXT,
-    "user_pwd" TEXT,
+    "user_email" TEXT NOT NULL,
+    "user_pwd" TEXT NOT NULL,
     "user_nick" CHAR(20) NOT NULL,
     "user_grade" INTEGER NOT NULL DEFAULT 0,
     "user_status" INTEGER NOT NULL DEFAULT 0,
     "user_refreshtoken" TEXT,
-    "user_like_staId" INTEGER NOT NULL DEFAULT 0,
+    "user_like_staId" INTEGER NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
 );
@@ -23,11 +23,11 @@ CREATE TABLE "AnonyUser" (
 );
 
 -- CreateTable
-CREATE TABLE "AppleUSer" (
+CREATE TABLE "AppleUser" (
     "app_user_id" SERIAL NOT NULL,
     "userID" INTEGER NOT NULL,
 
-    CONSTRAINT "AppleUSer_pkey" PRIMARY KEY ("app_user_id")
+    CONSTRAINT "AppleUser_pkey" PRIMARY KEY ("app_user_id")
 );
 
 -- CreateTable
@@ -52,17 +52,17 @@ CREATE TABLE "Stadium" (
 );
 
 -- CreateTable
-CREATE TABLE "Recommendation" (
+CREATE TABLE "PlayerRecommendation" (
     "reco_id" SERIAL NOT NULL,
     "reco_name" TEXT NOT NULL,
     "reco_image" TEXT NOT NULL,
-    "reco_player" TEXT NOT NULL,
+    "reco_player" TEXT,
     "reco_add" TEXT NOT NULL,
     "reco_tp" TEXT NOT NULL,
     "reco_menu" TEXT NOT NULL,
     "reco_stadiumId" INTEGER NOT NULL,
 
-    CONSTRAINT "Recommendation_pkey" PRIMARY KEY ("reco_id")
+    CONSTRAINT "PlayerRecommendation_pkey" PRIMARY KEY ("reco_id")
 );
 
 -- CreateTable
@@ -114,6 +114,16 @@ CREATE TABLE "Message" (
 );
 
 -- CreateTable
+CREATE TABLE "recommendations" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "content" TEXT,
+    "metadata" JSONB,
+    "embedding" vector,
+
+    CONSTRAINT "recommendations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_ChatRoomToUser" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL,
@@ -125,13 +135,16 @@ CREATE TABLE "_ChatRoomToUser" (
 CREATE UNIQUE INDEX "User_user_cus_id_key" ON "User"("user_cus_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_user_email_key" ON "User"("user_email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "AnonyUser_ano_uuid_key" ON "AnonyUser"("ano_uuid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "AnonyUser_userID_key" ON "AnonyUser"("userID");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AppleUSer_userID_key" ON "AppleUSer"("userID");
+CREATE UNIQUE INDEX "AppleUser_userID_key" ON "AppleUser"("userID");
 
 -- CreateIndex
 CREATE INDEX "_ChatRoomToUser_B_index" ON "_ChatRoomToUser"("B");
@@ -143,7 +156,7 @@ ALTER TABLE "User" ADD CONSTRAINT "User_user_like_staId_fkey" FOREIGN KEY ("user
 ALTER TABLE "AnonyUser" ADD CONSTRAINT "AnonyUser_userID_fkey" FOREIGN KEY ("userID") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AppleUSer" ADD CONSTRAINT "AppleUSer_userID_fkey" FOREIGN KEY ("userID") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "AppleUser" ADD CONSTRAINT "AppleUser_userID_fkey" FOREIGN KEY ("userID") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Favorit" ADD CONSTRAINT "fk_favorit_to_stadium" FOREIGN KEY ("fa_sta_id") REFERENCES "Stadium"("sta_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -152,7 +165,7 @@ ALTER TABLE "Favorit" ADD CONSTRAINT "fk_favorit_to_stadium" FOREIGN KEY ("fa_st
 ALTER TABLE "Favorit" ADD CONSTRAINT "fk_favorit_to_user" FOREIGN KEY ("fa_user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Recommendation" ADD CONSTRAINT "Recommendation_reco_stadiumId_fkey" FOREIGN KEY ("reco_stadiumId") REFERENCES "Stadium"("sta_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PlayerRecommendation" ADD CONSTRAINT "PlayerRecommendation_reco_stadiumId_fkey" FOREIGN KEY ("reco_stadiumId") REFERENCES "Stadium"("sta_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Cafeteria" ADD CONSTRAINT "Cafeteria_cafe_stadiumId_fkey" FOREIGN KEY ("cafe_stadiumId") REFERENCES "Stadium"("sta_id") ON DELETE RESTRICT ON UPDATE CASCADE;

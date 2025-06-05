@@ -204,7 +204,7 @@ export class AuthService {
     }
   }
 
-  // 이메일 토큰 검증
+  // 회원 가입시 이메일 토큰 검증
   async verifyCode(email: string, inputCode: string) {
     console.log('베리피 코드 들어옴 ');
     const trimEmail = email.toLowerCase().trim();
@@ -232,8 +232,77 @@ export class AuthService {
     }
   }
 
-  // 로그인 안한상태에서 비밀번호 찾기
-  async findPassword(user_email: string, user_cus_id: string) {}
+  // 로그인 안한상태에서 비밀번호 찾기 1
+  async findPassword(user_email: string) {
+    console.log('비밀번호 찾기 들어옴 : ');
+    const user = await this.userService.isExistEmail(user_email);
+    if (!user) {
+      throw new UnauthorizedException(
+        '해당 이메일로 가입한 사용자가 없습니다.',
+      );
+    } else if (user.user_status === 1) {
+      throw new UnauthorizedException('탈퇴한 아이디입니다.');
+    }
+
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    // 캐시에 저장
+    await this.cacheManager.set(`find-pwd-${user_email}`, code, 0);
+    console.log('비번 찾기 이메일 인증 토큰 : ', code);
+    // 이 이메일로 가입한게 맞으면 인증 토큰 쏴주기
+    await this.mailService.sendVerificationCode(user_email, code);
+
+    return {
+      message: '가입한 이메일로 인증코드를 발송했습니다.',
+      status: 'success',
+    };
+  }
+
+  // 비밀번호 찾기시 이메일 인증
+  async findPwdEmailVerify(user_email: string, token: string) {
+    console.log('비밀번호 찾기 이메일 인증 들어옴 : ');
+    const cacheKey = `find-pwd-${user_email}`;
+    const code = await this.cacheManager.get<string>(cacheKey);
+
+    if (!code || code !== token.trim()) {
+      throw new UnauthorizedException(
+        '인증코드가 일치하지 않습니다. 다시 입력해주세요',
+      );
+    }
+
+    // 인증 성공시 캐시 삭제
+    await this.cacheManager.del(cacheKey);
+
+    return {
+      message: '이메일 본인인증 성공, 비밀번호를 변경해주세요',
+      status: 'success',
+    };
+  }
+
+  async updatePassword(user_email: string, new_pwd: string) {
+    console.log('비밀번호 변경 들어옴 : ', user_email, new_pwd);
+
+    const user = await this.userService.isExistEmail(user_email);
+
+    if (!user || !user.user_cus_id) {
+      throw new UnauthorizedException(
+        '해당 이메일로 가입한 사용자가 없습니다.',
+      );
+    } else if (user.user_status === 1) {
+      throw new UnauthorizedException('탈퇴한 아이디입니다.');
+    }
+
+    // 비밀번호 업데이트
+    const response = await this.userService.updateUserPassword(
+      user_email,
+      new_pwd,
+    );
+
+    return {
+      message: '비밀번호가 성공적으로 변경되었습니다.',
+      status: 'success',
+    };
+  }
 
   // 로그인 안한상태에서 아이디 찾기
   async findUserId(user_email: string) {

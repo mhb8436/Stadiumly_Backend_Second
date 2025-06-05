@@ -10,8 +10,8 @@ datasource db {
 model User {
   user_id           Int        @id @default(autoincrement())
   user_cus_id       String     @unique
-  user_email        String?
-  user_pwd          String?
+  user_email        String     @unique
+  user_pwd          String
   user_nick         String     @db.Char(20)
   user_grade        Int        @default(0)
   user_status       Int        @default(0)
