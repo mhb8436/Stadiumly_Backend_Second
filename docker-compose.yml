@@ -16,7 +16,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      network_mode: host # Ubuntu에서 호스트 네트워크 직접 사용
+    networks:
+      - app-network ### host 모드 제거하고 app-network로 통일
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/stadiumdb?schema=public
       - AZURE_STORAGE_STRING=your_azure_storage_connection_string_here
@@ -26,7 +27,7 @@ services:
 
       - JWT_SECRET=your_jwt_secret_here
       - JWT_ACCESS_SECRET=your_jwt_secret_here
-      - JWT_RFRESH_SECRET=your_jwt_secret_here
+      - JWT_REFRESH_SECRET=your_jwt_secret_here
       - JWT_EXPIRE=your_jwt_expiration_time_here
 
       - SEND_GRID_MAILER_API_KEY=your_sendgrid_api_key_here
@@ -43,24 +44,24 @@ services:
       postgres:
         condition: service_healthy
 
-postgres:
-  image: pgvector/pgvector:pg16
-  ports:
-    - '5432:5432'
-  environment:
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=postgres
-    - POSTGRES_DB=sampler
-  volumes:
-    - postgres_data:/var/lib/postgresql/data
-    - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-  networks:
-    - app-network
-  healthcheck:
-    test: ['CMD-SHELL', 'pg_isready -U postgres']
-    interval: 5s
-    timeout: 5s
-    retries: 5
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sampler
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
