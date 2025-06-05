@@ -21,7 +21,8 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  async loginEmail(user: AuthUser) {
+  // 아이디로 로그인
+  async loginUserID(user: AuthUser) {
     const payload = {
       sub: +user.user_id,
       username: user.user_nick,
@@ -96,14 +97,14 @@ export class AuthService {
   // }
 
   async validateUser(
-    user_email: string,
+    user_cus_id: string,
     user_pwd: string,
   ): Promise<AuthUser | null> {
-    const user = await this.userService.userFindByEmail({
-      user_email,
+    const user = await this.userService.userFindByUserID({
+      user_cus_id,
       user_pwd,
     });
-    if (!user || !user.user_id) return null;
+    if (!user || !user.user_cus_id) return null;
     if (!user || !user.user_pwd) return null;
 
     const isMatch = await bcrypt.compare(user_pwd, user.user_pwd);
@@ -141,11 +142,14 @@ export class AuthService {
   async checkEmailUnique(email: string) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const user = await this.userService.isExistEmail(email); // 리턴 T/F
-    console.log('체크 유니크 안 : ');
+    console.log('체크 이메일 유니크 안 : ');
     console.log('user : ', user);
-    if (user) {
+    if (user?.user_email) {
       throw new UnauthorizedException('이미 사용 중인 이메일입니다.');
+    } else if (user?.user_status === 1) {
+      throw new UnauthorizedException('탈퇴한 이메일입니다.'); // 탈퇴한 유저도 이메일로 가입 불가
     }
+
     // 바로 토큰 발송
     await this.requestEmailVerification(email);
     return {
@@ -154,6 +158,7 @@ export class AuthService {
     };
   }
 
+  // 아이디 중복체크
   async checkUserIdUnique(userId: string) {
     const user = await this.userService.isExistUserId(userId);
 
@@ -162,7 +167,6 @@ export class AuthService {
     if (user) {
       throw new UnauthorizedException('이미 사용중인 아이디입니다.');
     }
-
     return {
       message: '사용 가능한 아이디입니다.',
       status: 'success',
@@ -200,7 +204,7 @@ export class AuthService {
     }
   }
 
-  // 토큰 검증
+  // 이메일 토큰 검증
   async verifyCode(email: string, inputCode: string) {
     console.log('베리피 코드 들어옴 ');
     const trimEmail = email.toLowerCase().trim();
@@ -226,6 +230,75 @@ export class AuthService {
       console.error('인증 코드 검증 중 에러 발생:', error);
       throw new UnauthorizedException('인증 코드 검증 중 오류가 발생했습니다.');
     }
+  }
+
+  // 로그인 안한상태에서 비밀번호 찾기
+  async findPassword(user_email: string, user_cus_id: string) {}
+
+  // 로그인 안한상태에서 아이디 찾기
+  async findUserId(user_email: string) {
+    console.log('아이디 찾기 들어옴 : ', user_email);
+    const user = await this.userService.isExistEmail(user_email);
+    console.log('아이디 찾기  : ', user);
+
+    if (!user || !user.user_cus_id) {
+      throw new UnauthorizedException(
+        '해당 아이디로 가입한 사용자가 없습니다.',
+      );
+    }
+    if (user.user_status === 1) {
+      throw new UnauthorizedException('탈퇴한 아이디입니다.');
+    }
+
+    // 가입한 유저가 있다면
+    const userEmail = user.user_email;
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    await this.mailService.sendVerificationCode(userEmail!, code);
+
+    await this.cacheManager.set(
+      `find-id-${userEmail}`,
+      code,
+      0, // TTL을 0으로 설정하여 만료되지 않게 함
+    );
+
+    console.log('아이디 찾기 인증코드 발송 : ', code);
+
+    return {
+      message: '가입한 이메일로 인증코드를 발송했습니다.',
+      status: 'success',
+    };
+  }
+
+  // 아이디 찾기시 이메일 인증
+  async findIdEmailVerify(user_email: string, token: string) {
+    console.log('아이디 찾기 이메일 인증 들어옴 : ');
+
+    await this.cacheManager
+      .get<string>(`find-id-${user_email}`)
+      .then((code) => {
+        console.log('유저가 입력한 토큰 : ', token);
+        console.log('코드 : ', code);
+        if (!code || code !== token.trim()) {
+          throw new UnauthorizedException(
+            '인증코드가 일치하지 않습니다. 다시 입력해주세요',
+          );
+        }
+      });
+    // 인증 성공시 아이디 알려주기
+    const user = await this.userService.isExistEmail(user_email);
+
+    if (!user || !user.user_cus_id) {
+      throw new UnauthorizedException(
+        '해당 이메일로 가입한 사용자가 없습니다.',
+      );
+    }
+
+    await this.cacheManager.del(`find-id-${user_email}`);
+    return {
+      user_cus_id: user.user_cus_id,
+      status: 'success',
+      message: '이메일 본인인증 성공, 아이디를 알려줌',
+    };
   }
 
   // 캐시 테스트

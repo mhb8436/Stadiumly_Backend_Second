@@ -44,13 +44,13 @@ export class UserService {
     return response;
   }
 
-  // 이메일로 가입한 회원 로그인
-  async userFindByEmail(emailSignInDto: EmailSignInDto) {
+  // 이메일로 가입한 회원 아이디로 로그인
+  async userFindByUserID(emailSignInDto: EmailSignInDto) {
     const plainPWD = emailSignInDto.user_pwd;
 
     const user = await this.prisma.user.findFirst({
       where: {
-        user_email: emailSignInDto.user_email,
+        user_cus_id: emailSignInDto.user_cus_id,
       },
     });
 
@@ -91,6 +91,11 @@ export class UserService {
       where: {
         user_email: user_email,
       },
+      select: {
+        user_status: true,
+        user_email: true,
+        user_cus_id: true,
+      },
     });
 
     return exist;
@@ -100,6 +105,11 @@ export class UserService {
     const exist = await this.prisma.user.findFirst({
       where: {
         user_cus_id: user_cus_id,
+      },
+      select: {
+        user_email: true,
+        user_status: true,
+        user_cus_id: true,
       },
     });
 

@@ -15,6 +15,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RecommendationsModule } from './recommendations/recommendations.module';
+import { PlayerRecommandModule } from './player-recommand/player-recommand.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { RecommendationsModule } from './recommendations/recommendations.module'
       isGlobal: true,
       ttl: 600,
     }),
+    PlayerRecommandModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, CrawlingService],

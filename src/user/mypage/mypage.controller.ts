@@ -35,7 +35,7 @@ export class MypageController {
     return this.myPage.updateNick(+req.user.user_id, body.user_nick);
   }
 
-  // 비밀번호 변경
+  // 로그인 중일때 비밀번호 변경
   @UseGuards(JwtAuthGuard)
   @Post('pwdChange')
   async updatePWD(@Request() req: AuthRequest, @Body() body: UpdatePwdDto) {

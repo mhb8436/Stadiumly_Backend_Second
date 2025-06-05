@@ -16,6 +16,7 @@ import { AuthUser } from 'src/types/auth-user.interface';
 import { CheckUniqueEmailDto } from './dto/email-unique.dto';
 import { CheckEmailTokenDto } from './dto/email-token.dto';
 import { CheckUniqueUserIdDto } from './dto/userid-unique.dto';
+import { findIdEmailVerifyDto } from './dto/find-id-email-verify.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -54,26 +55,49 @@ export class AuthController {
     return this.authService.refreshTokens(body.refresh_token);
   }
 
+  // 아이디로 로그인
   @UseGuards(LocalAuthGuard)
-  @Post('email-login')
-  async signInWithEmial(@Request() req: { user: AuthUser }) {
-    return this.authService.loginEmail(req.user);
+  @Post('userid-login')
+  async signInWithUSerId(@Request() req: { user: AuthUser }) {
+    return this.authService.loginUserID(req.user);
   }
 
+  //비밀번호 찾기
+  @Post('find-pwd')
+  async findPassword(
+    @Body() body: { user_email: string; user_cus_id: string },
+  ) {
+    return this.authService.findPassword(body.user_email, body.user_cus_id);
+  }
+
+  // 이메일로 아이디 찾기
+  @Post('find-id')
+  async findUserId(@Body() body: { user_email: string }) {
+    return this.authService.findUserId(body.user_email);
+  }
+  // 아이디 찾기시 이메일 본인인증
+  @Post('find-id-email-verify')
+  async findIdEmailVerify(@Body() body: findIdEmailVerifyDto) {
+    return this.authService.findIdEmailVerify(body.user_email, body.token);
+  }
+
+  // 로그아웃
+  // 로그아웃은 리프레시 토큰을 비워주는 것으로 처리
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Request() req: { user: AuthUser }) {
     return this.userService.updateRefreshToken(req.user.user_id, '');
   }
 
+  // 탈퇴
+  // @UseGuards(JwtAuthGuard)
+  // @Post('withdrawal')
+  // async withdrawal(@Request() req: { user: AuthUser }) {
+  //   return this.userService.withdrawal(req.user.user_id);
+  // }
+
   @Get('test-cache')
   testCache(): Promise<string> {
     return this.authService.testCache();
   }
-
-  // @UseGuards(LocalAuthGuard)
-  // @Post('email-login')
-  // async signInWithEmial(@Request() req) {
-  //   return this.authService.signInWithEmail(req.user);
-  // }
 }
