@@ -103,11 +103,11 @@ export class AuthController {
   }
 
   // 탈퇴
-  // @UseGuards(JwtAuthGuard)
-  // @Post('withdrawal')
-  // async withdrawal(@Request() req: { user: AuthUser }) {
-  //   return this.userService.withdrawal(req.user.user_id);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Post('delete-user')
+  async deleteUser(@Request() req: { user: AuthUser }) {
+    return this.userService.deactiveUser(req.user.user_cus_id);
+  }
 
   @Get('test-cache')
   testCache(): Promise<string> {

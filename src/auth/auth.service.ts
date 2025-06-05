@@ -29,6 +29,7 @@ export class AuthService {
       sub: +user.user_id,
       username: user.user_nick,
       user_refreshtoken: user.user_refreshtoken || null,
+      user_cus_id: user.user_cus_id,
     };
 
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1d' });

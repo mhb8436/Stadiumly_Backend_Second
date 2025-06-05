@@ -164,6 +164,23 @@ export class UserService {
     });
   }
 
+  async deactiveUser(user_cus_id: string) {
+    const result = await this.prisma.user.update({
+      where: {
+        user_cus_id: user_cus_id,
+      },
+      data: {
+        user_status: 1,
+      },
+    });
+
+    return {
+      ...result,
+      status: 'success',
+      message: '회원 탈퇴 성공',
+    };
+  }
+
   /*
     async updateRefreshToken(userId: number, refreshToken: string) {
     const salt = parseInt(
