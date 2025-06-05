@@ -14,6 +14,7 @@ import { AzureStorageModule } from './azure-storage/azure-storage.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './mail/mail.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { RecommendationsModule } from './recommendations/recommendations.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     ScheduleModule.forRoot(),
     AuthModule,
     StadiumModule,
+    RecommendationsModule,
     UserModule,
     CafeteriaModule,
     CrawlingModule,
