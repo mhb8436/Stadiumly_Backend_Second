@@ -115,7 +115,7 @@ export class AuthService {
   // 회원가입 버튼 눌렀을때
   async signUpWithEmail(userData: CreateUserNomalDto) {
     const isVerifiEmail = await this.cacheManager.get<boolean>(
-      `${userData.user_email}`,
+      `verified-${userData.user_email.toLowerCase().trim()}`,
     );
 
     if (!isVerifiEmail) {
@@ -135,31 +135,95 @@ export class AuthService {
   async checkEmailUnique(email: string) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const user = await this.userService.isExistEmail(email); // 리턴 T/F
+    console.log('체크 유니크 안 : ');
+    console.log('user : ', user);
     if (user) {
       throw new UnauthorizedException('이미 사용 중인 이메일입니다.');
     }
-    // 바로 토큰 발송해..?
+    // 바로 토큰 발송
     await this.requestEmailVerification(email);
-    return { message: '사용 가능한 이메일입니다.' };
+    return {
+      message: '사용 가능한 이메일입니다. 발송된 인증코드를 확인해주세요',
+      status: 'success',
+    };
   }
 
   // 이메일 토큰 인증 관련 시작
   // 유저가 입력한 이메일에 토큰 발송
   async requestEmailVerification(email: string) {
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase(); // 6자리 랜덤코드
-    await this.cacheManager.set(`token-${email}`, code, 60 * 5); // 5분동안 캐시로 저장
-    await this.mailService.sendVerificationCode(email, code);
-    return { message: '인증 코드가 전송되었습니다.' };
+    console.log('requestEmailVerification 입장 ');
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const trimEmail = email.toLowerCase().trim();
+    const key = `token-${trimEmail}`;
+
+    console.log('인증 코드 캐시에 저장할거 : ', code);
+    console.log('인증 코드 캐시 저장키 - 리퀘스트 안 : ', key);
+
+    try {
+      // 캐시에 저장
+      // ...? 왜 TTl을 0으로 하면 오류안남?
+      await this.cacheManager.set(key, code, 0); // TTL을 0으로 설정하여 만료되지 않게 함
+
+      // 저장 직후 확인
+      const confirm = await this.cacheManager.get<string>(key);
+      console.log('confirm 저장하자마자 꺼냄 : ', confirm);
+
+      if (!confirm) {
+        throw new Error('캐시 저장 실패!');
+      }
+
+      await this.mailService.sendVerificationCode(trimEmail, code);
+    } catch (error) {
+      console.error('캐시 저장/조회 중 에러 발생:', error);
+      throw new UnauthorizedException('인증 코드 생성 중 오류가 발생했습니다.');
+    }
   }
 
   // 토큰 검증
   async verifyCode(email: string, inputCode: string) {
-    const savedCode = await this.cacheManager.get<string>(`token-${email}`);
-    if (!savedCode || savedCode !== inputCode.toUpperCase()) {
-      throw new UnauthorizedException('Invalid or expired verification code');
+    console.log('베리피 코드 들어옴 ');
+    const trimEmail = email.toLowerCase().trim();
+    const key = `token-${trimEmail}`;
+
+    console.log('조회 키- 베리피 토큰안 :', key);
+
+    try {
+      // 캐시 저장소의 모든 키 확인
+      // const store = this.cacheManager.stores;
+      // if ('keys' in store) {
+      //   const allKeys = await store.keys();
+      //   console.log('현재 캐시에 있는 모든 키들:', allKeys);
+      // }
+
+      const savedCode = await this.cacheManager.get<string>(key);
+      console.log('세이브드 토큰 : ', savedCode);
+      console.log('inputCode   : ', inputCode);
+
+      if (!savedCode || savedCode !== inputCode.toUpperCase().trim()) {
+        throw new UnauthorizedException(
+          '인증코드가 일치하지 않습니다. 다시 시도해주세요',
+        );
+      }
+
+      await this.cacheManager.del(key);
+      await this.cacheManager.set(`verified-${trimEmail}`, true, 600);
+      return { message: '이메일 인증 성공', status: 'success' };
+    } catch (error) {
+      console.error('인증 코드 검증 중 에러 발생:', error);
+      throw new UnauthorizedException('인증 코드 검증 중 오류가 발생했습니다.');
     }
-    await this.cacheManager.del(email); // 인증 코드 사용 후 삭제
-    await this.cacheManager.set(email, true, 60 * 10); // 10분 동안 인증된 이메일로 저장
-    return { message: '이메일 인증 성공' };
+  }
+
+  // 캐시 테스트
+  async testCache(): Promise<string> {
+    try {
+      await this.cacheManager.set('test', 'hello-world', 60);
+      const value = await this.cacheManager.get<string>('test');
+      console.log('캐시에서 갖고옴 : ', value);
+      return value ?? '캐시 못 읽음...;;';
+    } catch (error) {
+      console.log('캐시 못갖고옴', error);
+      return '캐시 안됌';
+    }
   }
 }

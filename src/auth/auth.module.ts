@@ -8,9 +8,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MypageModule } from 'src/user/mypage/mypage.module';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
+    MailModule,
     forwardRef(() => UserModule),
     forwardRef(() => MypageModule),
     JwtModule.registerAsync({

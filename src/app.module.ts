@@ -32,7 +32,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     MailModule,
     CacheModule.register({
       isGlobal: true,
-      ttl: 0, // seconds
+      ttl: 600,
     }),
   ],
   controllers: [AppController],
