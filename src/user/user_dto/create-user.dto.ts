@@ -19,23 +19,32 @@ export class CreateUserNomalDto {
   user_email: string;
 
   @IsString()
+  @Matches(/^[a-zA-Z0-9]{4,12}$/, {
+    message: '닉네임은 영문 대소문자와 숫자로만 이루어진 4~12자여야 합니다.',
+  })
   @ApiProperty({ example: 'joody', description: '유저 아이디, 유니크, 필수' })
   user_cus_id: string;
 
   @IsString()
-  @Matches(/^[A-Za-z\d!@#$%^&*()]{8,30}$/)
+  @Matches(
+    /^(?!^[a-zA-Z]+$)(?!^[0-9]+$)(?!^[^a-zA-Z0-9]+$)[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]{8,16}$/,
+    {
+      message:
+        '비밀번호는 영문, 숫자, 특수문자 중 2가지 이상 조합으로 8~16자여야 합니다.',
+    },
+  )
   @Transform(({ value }) => value.trim())
   @ApiProperty({ example: 'qwer123!@#', description: '비밀번호 필수' })
   user_pwd: string;
 
+  @IsOptional()
   @IsString()
   @Transform(({ value }) => value.trim())
   @ApiProperty({
     example: '입력안하면 랜덤 닉네임',
     description:
       '유저가 입력안하면 자동생성, 필수값 아님 ' +
-      '형용사' +
-      '응원하는 팀 마스코트명',
+      ' ex) 형용사 + 응원하는 팀 마스코트명',
   })
   user_nick: string;
 

@@ -15,6 +15,7 @@ import { UserService } from 'src/user/user.service';
 import { AuthUser } from 'src/types/auth-user.interface';
 import { CheckUniqueEmailDto } from './dto/email-unique.dto';
 import { CheckEmailTokenDto } from './dto/email-token.dto';
+import { CheckUniqueUserIdDto } from './dto/userid-unique.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +45,7 @@ export class AuthController {
 
   // 닉네임 중복 확인
   @Post('check-userid-unique')
-  async checkUserIdUnique(@Body() body: { user_cus_id: string }) {
+  async checkUserIdUnique(@Body() body: CheckUniqueUserIdDto) {
     return this.authService.checkUserIdUnique(body.user_cus_id);
   }
 

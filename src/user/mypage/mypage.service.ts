@@ -2,6 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { randomNickMaker } from '../randomNick';
+import { data } from 'cheerio/dist/commonjs/api/attributes';
 
 @Injectable()
 export class MypageService {
@@ -34,15 +36,36 @@ export class MypageService {
   }
 
   // 닉네임 변경
-  async updateNick(user_id: number, newNickName: string) {
-    return await this.prisma.user.update({
+  async updateNick(
+    user_id: number,
+    newNickName: string,
+    user_like_staId?: number,
+  ) {
+    let finalNick = newNickName;
+
+    // 만약 닉네임을 입력하지 않았을 경우 랜덤 닉네임 생성
+    if (
+      (!newNickName || newNickName.trim() === '') &&
+      user_like_staId !== undefined &&
+      user_like_staId !== null
+    ) {
+      finalNick = randomNickMaker(11); // 11은 응원하는 팀 없음
+    }
+
+    const data = await this.prisma.user.update({
       where: {
         user_id: user_id,
       },
       data: {
-        user_nick: newNickName,
+        user_nick: finalNick,
       },
     });
+
+    return {
+      ...data,
+      status: 'success',
+      message: '닉네임 변경 성공',
+    };
   }
 
   // 비밀번호 변경

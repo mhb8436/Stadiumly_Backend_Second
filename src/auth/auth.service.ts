@@ -39,6 +39,7 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
+      status: 'success',
     };
   }
 
@@ -133,7 +134,7 @@ export class AuthService {
     await this.cacheManager.del(key);
     await this.cacheManager.del(`token-${trimEmail}`);
 
-    return { messase: '회원가입 성공' };
+    return { messase: '회원가입 성공', status: 'success' };
   }
 
   // 이메일 중복인지 체크

@@ -39,8 +39,9 @@ export class UserService {
         user_nick: signupform.user_nick ? signupform.user_nick : userNick,
       },
     });
+    const response = { ...data, status: 'success', message: '회원가입 성공' };
 
-    return data;
+    return response;
   }
 
   // 이메일로 가입한 회원 로그인
