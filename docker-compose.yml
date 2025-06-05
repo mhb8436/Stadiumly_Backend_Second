@@ -16,10 +16,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    expose:
-      - '3000'
+      network_mode: host # Ubuntu에서 호스트 네트워크 직접 사용
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sampler?schema=public
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/stadiumdb?schema=public
       - AZURE_STORAGE_STRING=your_azure_storage_connection_string_here
       - AZURE_STORAGE_CONTAINER_NAME=your_azure_storage_container_name_here
 
@@ -33,41 +32,35 @@ services:
       - SEND_GRID_MAILER_API_KEY=your_sendgrid_api_key_here
       - SEND_GRID_MAILER_FROM_EMAIL=your_sendgrid_from_email_here
 
+      - OLLAMA_BASE_URL=your_ollama_base_url_here
+      - OLLAMA_MODEL=your_ollama_model_here
+      - NODE_ENV=production
+
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+      - HOST_SERVICE_URL=http://localhost:11434 # 직접 localhost 사용
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - app-network
-    healthcheck:
-      test: ['CMD', 'wget', '--spider', 'http://localhost:3000/health']
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
 
-  postgres:
-    image: postgres:14-alpine
-    ports:
-      - '5432:5432'
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=stadiumDB
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    command:
-      - 'postgres'
-      - '-c'
-      - 'max_connections=100'
-      - '-c'
-      - 'shared_buffers=256MB'
+postgres:
+  image: pgvector/pgvector:pg16
+  ports:
+    - '5432:5432'
+  environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DB=sampler
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+    - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+  networks:
+    - app-network
+  healthcheck:
+    test: ['CMD-SHELL', 'pg_isready -U postgres']
+    interval: 5s
+    timeout: 5s
+    retries: 5
 
 volumes:
   postgres_data:
