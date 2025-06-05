@@ -20,14 +20,13 @@ services:
       - '3000'
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sampler?schema=public
-      - JWT_SECRET=your_jwt_secret_here
       - NODE_ENV=production
       - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
       - OLLAMA_BASE_URL=http://ollama:11434 # ollama 서비스 주소
       - BCRYPT_SALT_ROUNDS=18
 
-      - JWT_SECRET=your_jwt_secret_here
+      - JWT_ACCESS_SECRET=your_jwt_secret_here
       - JWT_EXPIRE=your_jwt_expiration_time_here
       - AZURE_STORAGE_STRING=your_azure_storage_connection_string_here
       - AZURE_STORAGE_CONTAINER_NAME=your_azure_storage_container_name_here

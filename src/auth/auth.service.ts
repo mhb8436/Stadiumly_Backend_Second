@@ -10,6 +10,7 @@ import { MailService } from 'src/mail/mail.service';
 
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private myPageService: MypageService,
     private jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly config: ConfigService,
   ) {}
 
   // 아이디로 로그인
@@ -46,7 +48,9 @@ export class AuthService {
 
   async refreshTokens(refreshToken: string) {
     try {
-      const decoded = this.jwtService.verify(refreshToken);
+      const decoded = this.jwtService.verify(refreshToken, {
+        secret: this.config.get<string>('JWT_REFRESH_SECRET'),
+      });
       const user = await this.userService.findUserById(decoded.sub);
 
       if (!user || !user.user_refreshtoken) {
@@ -64,14 +68,16 @@ export class AuthService {
 
       const payload = { sub: user?.user_id, username: user?.user_nick };
 
-      const newAccessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
-      const newRefreshToken = this.jwtService.sign(payload, {
-        expiresIn: '14d',
+      const newAccessToken = this.jwtService.sign(payload, {
+        expiresIn: '1h',
+        secret: this.config.get<string>('JWT_ACCESS_SECRET'),
       });
 
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
+      const newRefreshToken = this.jwtService.sign(payload, {
+        expiresIn: '14d',
+        secret: this.config.get<string>('JWT_REFRESH_SECRET'),
+      });
+
       await this.userService.updateRefreshToken(user.user_id, newRefreshToken);
 
       return {
@@ -79,8 +85,13 @@ export class AuthService {
         refresh_token: newRefreshToken,
       };
     } catch (error) {
-      console.error(error);
-      throw new UnauthorizedException('Token expired or Invalid');
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Refresh Token expired');
+      } else if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      throw new UnauthorizedException('Unknown error');
     }
   }
 

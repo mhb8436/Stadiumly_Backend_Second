@@ -20,13 +20,14 @@ services:
       - '3000'
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sampler?schema=public
-      - JWT_SECRET=your_jwt_secret_here
       - AZURE_STORAGE_STRING=your_azure_storage_connection_string_here
       - AZURE_STORAGE_CONTAINER_NAME=your_azure_storage_container_name_here
 
       - BCRYPT_SALT_ROUNDS=18
 
       - JWT_SECRET=your_jwt_secret_here
+      - JWT_ACCESS_SECRET=your_jwt_secret_here
+      - JWT_RFRESH_SECRET=your_jwt_secret_here
       - JWT_EXPIRE=your_jwt_expiration_time_here
 
       - SEND_GRID_MAILER_API_KEY=your_sendgrid_api_key_here

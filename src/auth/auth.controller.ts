@@ -51,6 +51,7 @@ export class AuthController {
     return this.authService.checkUserIdUnique(body.user_cus_id);
   }
 
+  // 리프레시 토큰 검증
   @Post('refresh')
   async getNewRefreshToken(@Body() body: { refresh_token: string }) {
     return this.authService.refreshTokens(body.refresh_token);
@@ -98,7 +99,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Request() req: { user: AuthUser }) {
-    return this.userService.updateRefreshToken(req.user.user_id, '');
+    return this.userService.updateRefreshToken(req.user.user_id, null);
   }
 
   // 탈퇴

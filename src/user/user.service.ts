@@ -143,7 +143,29 @@ export class UserService {
   }
 
   // 리프레시 토큰 발급 및 저장
-  async updateRefreshToken(userId: number, refreshToken: string) {
+  // 리프레시 토큰은 로그인할 때마다 새로 발급?
+  async updateRefreshToken(userId: number, refreshToken: string | null) {
+    let hashedToken: string | null = null;
+
+    if (refreshToken) {
+      const salt = parseInt(
+        this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
+      );
+      hashedToken = await bcrypt.hash(refreshToken, salt);
+    }
+
+    return this.prisma.user.update({
+      where: {
+        user_id: userId,
+      },
+      data: {
+        user_refreshtoken: hashedToken,
+      },
+    });
+  }
+
+  /*
+    async updateRefreshToken(userId: number, refreshToken: string) {
     const salt = parseInt(
       this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
     );
@@ -157,5 +179,5 @@ export class UserService {
         user_refreshtoken: hashedToken,
       },
     });
-  }
+  }*/
 }
