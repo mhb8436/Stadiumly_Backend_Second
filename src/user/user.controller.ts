@@ -8,15 +8,16 @@ import { EmailSignInDto } from 'src/auth/dto/signIn-email.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('email-join')
-  async create(@Body() userFormData: CreateUserNomalDto) {
-    return this.userService.signUpWithEmail(userFormData);
-  }
+  // // up이 회원 가입
+  // @Post('email-signup')
+  // async create(@Body() userFormData: CreateUserNomalDto) {
+  //   return this.userService.signUpWithEmail(userFormData);
+  // }
 
-  @Post('email-enter')
-  async signInWithEmail(@Body() emailSignInDto: EmailSignInDto) {
-    return this.userService.userFindByEmail(emailSignInDto);
-  }
+  // @Post('email-enter')
+  // async signInWithEmail(@Body() emailSignInDto: EmailSignInDto) {
+  //   return this.userService.userFindByEmail(emailSignInDto);
+  // }
 
   // @Get()
   // async getUseryEmail(@Body() userEmail: string, @Body() teamID: string) {

@@ -1,9 +1,15 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString } from 'class-validator';
 
 export class CheckEmailTokenDto {
   @IsEmail()
+  @ApiProperty({
+    example: 'email@example.com',
+    description: '회원가입 요청보내기',
+  })
   email: string;
 
   @IsString()
+  @ApiProperty({ example: '유저가 이메일로 받은 랜덤 문자열' })
   emailToken: string;
 }

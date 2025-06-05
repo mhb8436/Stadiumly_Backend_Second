@@ -4,28 +4,29 @@ generator client {
 
 datasource db {
   provider = "postgresql" // 배포용
-  // provider = "mysql"
+
   url      = env("DATABASE_URL")
 }
 
 model User {
   user_id    Int       @id @default(autoincrement())
+  user_cus_id String @unique // 유저가 가입할때 지정하는 아이디
   user_email String? // @unique @db.Char(20) // 이메일이 유니크여야 하는데 카카오랑 애플에서 받아올 수 잇는지 확인
   user_pwd   String?
   user_nick  String @db.Char(20)
   user_grade Int      @default(0) // 0: 비회원, 1: 아이디 비번, 2:카카오, 3: 애플
   user_status Int @default(0) // 0: 정상활동 유저, 1: 탈퇴회원 -> 재가입 불가능
   user_refreshtoken String?
-  user_like_staId Int @default(0) // 유저가 팬인 팀의 홈 구장, 디폴트 id 0: 아직 팬 설정 안함
+  user_like_staId Int  // 유저가 팬인 팀의 홈 구장, 디폴트 id 0: 아직 팬 설정 안함
   
-  stadium Stadium @relation(fields: [user_like_staId], references: [sta_id])
+  stadium Stadium? @relation(fields: [user_like_staId], references: [sta_id])
 
   favorits  Favorit[]
   messages Message[]
   ChatRoom ChatRoom[]
 
   AnonyUser AnonyUser[]
-  AppleUSer AppleUSer[]
+  AppleUSer AppleUser[]
 }
 
 // 비회원이면 디바이스 정보 받아오기
@@ -34,12 +35,11 @@ model AnonyUser{
   ano_uuid String @unique
   userID Int @unique
   user User @relation(fields: [userID], references: [user_id])
-
 }
 
 
 // 애플 유저, 로그인 탈퇴에 필요한 데이터 따로 보관
-model AppleUSer{
+model AppleUser{
   app_user_id Int @id @default(autoincrement())
   
   userID Int @unique
@@ -66,7 +66,7 @@ model Stadium {
 
 
   Favorit        Favorit[]
-  Recommendation Recommendation[] @relation("StadiumRecommendations")
+  Recommendation PlayerRecommendation[] @relation("StadiumRecommendations")
   Cafeteria      Cafeteria[]
 
   User User[]
@@ -75,7 +75,7 @@ model Stadium {
 
 
 // 추천맛집
-model Recommendation {
+model PlayerRecommendation {
   reco_id   Int       @id @default(autoincrement())
   reco_name String
   reco_image String
@@ -101,15 +101,6 @@ model Cafeteria {
   stadium   Stadium @relation(fields: [cafe_stadiumId], references: [sta_id])
 }
 
-// 주차장 정보도 저장해서 해야함
-// model ParkingLot {
-//   park_id   Int       @id @default(autoincrement())
-//   park_name String
-//   park_lati Float
-//   park_long Float
-//   stadiumId Int
-//   stadium   Stadium @relation(fields: [stadiumId], references: [sta_id])
-// }
 
 // 선발투수 정보
 model StartPitcher{
@@ -126,6 +117,9 @@ model StartPitcher{
   createdAt DateTime @default(now())
 }
 
+// model OllamaRecomandation{
+//   id Int @id @default(autoincrement())
+// }
 
 model ChatRoom {
   id       Int       @id @default(autoincrement())

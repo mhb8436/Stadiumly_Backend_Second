@@ -42,6 +42,12 @@ export class AuthController {
     return this.authService.verifyCode(body.email, body.emailToken);
   }
 
+  // 닉네임 중복 확인
+  @Post('check-userid-unique')
+  async checkUserIdUnique(@Body() body: { user_cus_id: string }) {
+    return this.authService.checkUserIdUnique(body.user_cus_id);
+  }
+
   @Post('refresh')
   async getNewRefreshToken(@Body() body: { refresh_token: string }) {
     return this.authService.refreshTokens(body.refresh_token);

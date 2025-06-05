@@ -114,9 +114,13 @@ export class AuthService {
 
   // 회원가입 버튼 눌렀을때
   async signUpWithEmail(userData: CreateUserNomalDto) {
-    const isVerifiEmail = await this.cacheManager.get<boolean>(
-      `verified-${userData.user_email.toLowerCase().trim()}`,
-    );
+    console.log('auth 회원가입 들어왔음 : ');
+
+    const trimEmail = userData.user_email.toLowerCase().trim();
+    const key = `verified-${trimEmail}`;
+    const isVerifiEmail = await this.cacheManager.get<boolean>(key);
+
+    console.log('isVerifiEmail : ', isVerifiEmail);
 
     if (!isVerifiEmail) {
       throw new UnauthorizedException(
@@ -126,7 +130,8 @@ export class AuthService {
     // 이제 진짜로 가입 시켜준다~
     await this.userService.signUpWithEmail(userData);
     // 이메일
-    await this.cacheManager.del(`${userData.user_email}`);
+    await this.cacheManager.del(key);
+    await this.cacheManager.del(`token-${trimEmail}`);
 
     return { messase: '회원가입 성공' };
   }
@@ -144,6 +149,21 @@ export class AuthService {
     await this.requestEmailVerification(email);
     return {
       message: '사용 가능한 이메일입니다. 발송된 인증코드를 확인해주세요',
+      status: 'success',
+    };
+  }
+
+  async checkUserIdUnique(userId: string) {
+    const user = await this.userService.isExistUserId(userId);
+
+    console.log('체크 유저 아이디 안 : ');
+
+    if (user) {
+      throw new UnauthorizedException('이미 사용중인 아이디입니다.');
+    }
+
+    return {
+      message: '사용 가능한 아이디입니다.',
       status: 'success',
     };
   }
@@ -188,13 +208,6 @@ export class AuthService {
     console.log('조회 키- 베리피 토큰안 :', key);
 
     try {
-      // 캐시 저장소의 모든 키 확인
-      // const store = this.cacheManager.stores;
-      // if ('keys' in store) {
-      //   const allKeys = await store.keys();
-      //   console.log('현재 캐시에 있는 모든 키들:', allKeys);
-      // }
-
       const savedCode = await this.cacheManager.get<string>(key);
       console.log('세이브드 토큰 : ', savedCode);
       console.log('inputCode   : ', inputCode);
@@ -206,7 +219,7 @@ export class AuthService {
       }
 
       await this.cacheManager.del(key);
-      await this.cacheManager.set(`verified-${trimEmail}`, true, 600);
+      await this.cacheManager.set(`verified-${trimEmail}`, true, 0);
       return { message: '이메일 인증 성공', status: 'success' };
     } catch (error) {
       console.error('인증 코드 검증 중 에러 발생:', error);

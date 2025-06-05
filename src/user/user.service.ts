@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { randomNickMaker } from './randomNick';
 import { EmailSignInDto } from 'src/auth/dto/signIn-email.dto';
+import { stdin } from 'process';
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
 
   // 이메일로 회원가입
   async signUpWithEmail(signupform: CreateUserNomalDto) {
+    console.log('유저 서비스 회원가입 들어옴 :');
     const salt = parseInt(
       this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
     );
@@ -27,6 +29,7 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const data = await this.prisma.user.create({
       data: {
+        user_cus_id: signupform.user_cus_id,
         user_email: signupform.user_email,
         user_like_staId: signupform.user_like_staId
           ? signupform.user_like_staId
@@ -86,6 +89,16 @@ export class UserService {
     const exist = await this.prisma.user.findFirst({
       where: {
         user_email: user_email,
+      },
+    });
+
+    return exist;
+  }
+
+  async isExistUserId(user_cus_id: string) {
+    const exist = await this.prisma.user.findFirst({
+      where: {
+        user_cus_id: user_cus_id,
       },
     });
 
