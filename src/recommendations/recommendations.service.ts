@@ -65,7 +65,7 @@ export class RecommendationsService implements OnModuleInit {
   private createOllamaModel(modelName: string = 'qwen2.5') {
     return new Ollama({
       baseUrl: this.configService.get('OLLAMA_BASE_URL'),
-      model: modelName,
+      model: this.configService.get('OLLAMA_MODEL'),
     });
   }
 

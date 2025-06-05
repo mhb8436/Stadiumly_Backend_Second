@@ -21,7 +21,7 @@ export class VectorStoreService implements OnModuleInit {
 
   private async initVectorStore() {
     const embeddings = new OllamaEmbeddings({
-      model: 'qwen2.5',
+      model: this.configService.get('OLLAMA_MODEL'),
       baseUrl: this.configService.get('OLLAMA_BASE_URL'),
     });
 
