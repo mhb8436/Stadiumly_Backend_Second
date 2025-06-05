@@ -16,7 +16,6 @@ export class StadiumController {
 
   @Get('/detail')
   async getStadiumDetailData(@Body('teamname') teamname: string) {
-    const teamname = teamname;
     const data = await this.stadiumService.getStadiumByTeamName(teamname);
     return data;
   }
