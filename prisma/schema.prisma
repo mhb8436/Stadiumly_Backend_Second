@@ -76,6 +76,7 @@ model Cafeteria {
   cafe_name      String
   cafe_image     String
   cafe_location  String
+  cafe_floor Int
   cafe_category  String
   cafe_stadiumId Int
   stadium        Stadium @relation(fields: [cafe_stadiumId], references: [sta_id])

@@ -71,6 +71,7 @@ CREATE TABLE "Cafeteria" (
     "cafe_name" TEXT NOT NULL,
     "cafe_image" TEXT NOT NULL,
     "cafe_location" TEXT NOT NULL,
+    "cafe_floor" INTEGER NOT NULL,
     "cafe_category" TEXT NOT NULL,
     "cafe_stadiumId" INTEGER NOT NULL,
 
