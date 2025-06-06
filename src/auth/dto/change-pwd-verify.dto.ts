@@ -19,7 +19,7 @@ export class changePwdVerifyDto {
   )
   @ApiProperty({
     example: 'ASGVD#%11',
-    description: '변경할 비밀번호 ',
+    description: '변경할 비밀번호 정규식 지켜서 입력 ',
   })
   new_pwd: string;
 }
