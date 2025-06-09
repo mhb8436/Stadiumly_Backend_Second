@@ -9,12 +9,12 @@ export class CafeteriaController {
 
   @Get(':id')
   async getCafeteriaListById(
-    @Param('id') stadiumId: CafeteriaListRequestParamDto,
-    @Query('location') location: CafeteriaListRequestQueryDto,
+    @Param() param: CafeteriaListRequestParamDto,
+    @Query() query: CafeteriaListRequestQueryDto,
   ) {
     return await this.cafeteriaService.getCafeList(
-      stadiumId.sta_Id,
-      location.location,
+      param.sta_Id,
+      query.location,
     );
   }
 }
