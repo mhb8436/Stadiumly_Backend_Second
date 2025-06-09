@@ -23,6 +23,7 @@ export class MypageService {
         user_like_staId: true,
         user_nick: true,
         user_email: true,
+        user_cus_id: true,
         stadium: {
           select: {
             sta_image: true,
