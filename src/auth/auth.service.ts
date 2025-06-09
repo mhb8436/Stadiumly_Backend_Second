@@ -143,7 +143,8 @@ export class AuthService {
     const key = `verified-${trimEmail}`;
     const isVerifiEmail = await this.cacheManager.get<boolean>(key);
 
-    console.log('isVerifiEmail : ', isVerifiEmail);
+    console.log('회원 가입 눌렀을때 캐시키 값 key : ', key);
+    console.log('isVerifiEmail 캐시에서 불러온 값 : ', isVerifiEmail);
 
     if (!isVerifiEmail) {
       throw new UnauthorizedException(
@@ -164,6 +165,7 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const user = await this.userService.isExistEmail(email); // 리턴 T/F
     console.log('체크 이메일 유니크 안 : ');
+    console.log('입력받은 이메일 ', email);
     console.log('user : ', user);
     if (user?.user_email) {
       throw new UnauthorizedException('이미 사용 중인 이메일입니다.');
@@ -199,18 +201,18 @@ export class AuthService {
   // 이메일 토큰 인증 관련 시작
   // 유저가 입력한 이메일에 토큰 발송
   async requestEmailVerification(email: string) {
-    console.log('requestEmailVerification 입장 ');
+    console.log('@@ 토큰 캐시 저장에 입장 순서2 ');
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const trimEmail = email.toLowerCase().trim();
     const key = `token-${trimEmail}`;
 
     console.log('인증 코드 캐시에 저장할거 : ', code);
-    console.log('인증 코드 캐시 저장키 - 리퀘스트 안 : ', key);
+    console.log('인증 코드 캐시 저장키 - requestEmailVerification 안 : ', key);
 
     try {
       // 캐시에 저장
       // ...? 왜 TTl을 0으로 하면 오류안남?
-      await this.cacheManager.set<string>(key, code, 0); // TTL을 0으로 설정하여 만료되지 않게 함
+      await this.cacheManager.set<string>(key, code, 600000); // TTL을 0으로 설정하여 만료되지 않게 함
 
       // 저장 직후 확인
       const confirm = await this.cacheManager.get<string>(key);
@@ -233,7 +235,8 @@ export class AuthService {
     const trimEmail = email.toLowerCase().trim();
     const key = `token-${trimEmail}`;
 
-    console.log('조회 키- 베리피 토큰안 :', key);
+    console.log('인증 코드 캐시 저장키랑 같아야 함 ');
+    console.log('인증 코드 캐시 조회키- 베리피 토큰안 :', key);
 
     try {
       const savedCode = await this.cacheManager.get<string>(key);
@@ -247,7 +250,11 @@ export class AuthService {
       }
 
       await this.cacheManager.del(key);
-      await this.cacheManager.set<boolean>(`verified-${trimEmail}`, true, 0);
+      await this.cacheManager.set<boolean>(
+        `verified-${trimEmail}`,
+        true,
+        600000,
+      );
       return { message: '이메일 인증 성공', status: 'success' };
     } catch (error) {
       console.error('인증 코드 검증 중 에러 발생:', error);
@@ -270,7 +277,7 @@ export class AuthService {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     // 캐시에 저장
-    await this.cacheManager.set<string>(`find-pwd-${user_email}`, code, 0);
+    await this.cacheManager.set<string>(`find-pwd-${user_email}`, code, 600000);
     console.log('비번 찾기 이메일 인증 토큰 : ', code);
     // 이 이메일로 가입한게 맞으면 인증 토큰 쏴주기
     await this.mailService.sendVerificationCode(user_email, code);
@@ -350,7 +357,7 @@ export class AuthService {
     await this.cacheManager.set<string>(
       `find-id-${userEmail}`,
       code,
-      0,
+      600000,
       // TTL을 0으로 설정하여 만료되지 않게 함
     );
 
@@ -397,7 +404,7 @@ export class AuthService {
   // 캐시 테스트
   async testCache(): Promise<string> {
     try {
-      await this.cacheManager.set('test', 'hello-world', 60);
+      await this.cacheManager.set('test', 'hello-world', 600000);
       const value = await this.cacheManager.get<string>('test');
       console.log('캐시에서 갖고옴 : ', value);
       return value ?? '캐시 못 읽음...;;';
