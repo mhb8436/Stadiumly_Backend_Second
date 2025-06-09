@@ -154,8 +154,8 @@ export class AuthService {
     // 이제 진짜로 가입 시켜준다~
     await this.userService.signUpWithEmail(userData);
     // 이메일
-    await this.cacheManager.del(key);
-    await this.cacheManager.del(`token-${trimEmail}`);
+    // await this.cacheManager.del(key);
+    // await this.cacheManager.del(`token-${trimEmail}`);
 
     return { messase: '회원가입 성공', status: 'success' };
   }
@@ -249,7 +249,7 @@ export class AuthService {
         );
       }
 
-      await this.cacheManager.del(key);
+      // await this.cacheManager.del(key);
       await this.cacheManager.set<boolean>(
         `verified-${trimEmail}`,
         true,
@@ -301,7 +301,7 @@ export class AuthService {
     }
 
     // 인증 성공시 캐시 삭제
-    await this.cacheManager.del(cacheKey);
+    // await this.cacheManager.del(cacheKey);
 
     return {
       message: '이메일 본인인증 성공, 비밀번호를 변경해주세요',
@@ -393,7 +393,7 @@ export class AuthService {
       );
     }
 
-    await this.cacheManager.del(`find-id-${user_email}`);
+    // await this.cacheManager.del(`find-id-${user_email}`);
     return {
       user_cus_id: user.user_cus_id,
       status: 'success',

@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { randomNickMaker } from './randomNick';
 import { EmailSignInDto } from 'src/auth/dto/signIn-email.dto';
 import { stdin } from 'process';
+import puppeteer from 'puppeteer';
 
 @Injectable()
 export class UserService {
