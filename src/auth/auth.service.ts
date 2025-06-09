@@ -32,6 +32,12 @@ export class AuthService {
       user_cus_id: user.user_cus_id,
     };
 
+    // 탈퇴한 아이디 비번 확인해서 로그인 못하게 막아야함ㅋㅋㅋ
+    const isStableUser = await this.userService.isExistUserId(user.user_cus_id);
+    if (isStableUser?.user_status === 1) {
+      throw new UnauthorizedException('탈퇴한 아이디입니다.');
+    }
+
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1d' });
 
     const refreshToken = this.jwtService.sign(payload, {
@@ -163,6 +169,7 @@ export class AuthService {
     }
 
     // 바로 토큰 발송
+    // 여기서 토큰 저장 해야하나?
     await this.requestEmailVerification(email);
     return {
       message: '사용 가능한 이메일입니다. 발송된 인증코드를 확인해주세요',
@@ -199,7 +206,7 @@ export class AuthService {
     try {
       // 캐시에 저장
       // ...? 왜 TTl을 0으로 하면 오류안남?
-      await this.cacheManager.set(key, code, 0); // TTL을 0으로 설정하여 만료되지 않게 함
+      await this.cacheManager.set(key, code, 180000); // TTL을 0으로 설정하여 만료되지 않게 함
 
       // 저장 직후 확인
       const confirm = await this.cacheManager.get<string>(key);
@@ -236,7 +243,7 @@ export class AuthService {
       }
 
       await this.cacheManager.del(key);
-      await this.cacheManager.set(`verified-${trimEmail}`, true, 0);
+      await this.cacheManager.set(`verified-${trimEmail}`, true, 180000);
       return { message: '이메일 인증 성공', status: 'success' };
     } catch (error) {
       console.error('인증 코드 검증 중 에러 발생:', error);
@@ -259,7 +266,7 @@ export class AuthService {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     // 캐시에 저장
-    await this.cacheManager.set(`find-pwd-${user_email}`, code, 0);
+    await this.cacheManager.set(`find-pwd-${user_email}`, code, 180000);
     console.log('비번 찾기 이메일 인증 토큰 : ', code);
     // 이 이메일로 가입한게 맞으면 인증 토큰 쏴주기
     await this.mailService.sendVerificationCode(user_email, code);
@@ -339,7 +346,8 @@ export class AuthService {
     await this.cacheManager.set(
       `find-id-${userEmail}`,
       code,
-      0, // TTL을 0으로 설정하여 만료되지 않게 함
+      180000,
+      // TTL을 0으로 설정하여 만료되지 않게 함
     );
 
     console.log('아이디 찾기 인증코드 발송 : ', code);

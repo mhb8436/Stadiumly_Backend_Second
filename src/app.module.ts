@@ -35,7 +35,7 @@ import { PlayerRecommandModule } from './player-recommand/player-recommand.modul
     MailModule,
     CacheModule.register({
       isGlobal: true,
-      ttl: 600,
+      ttl: 1000,
     }),
     PlayerRecommandModule,
   ],

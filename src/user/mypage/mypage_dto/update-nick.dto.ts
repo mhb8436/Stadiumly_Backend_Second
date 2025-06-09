@@ -8,7 +8,4 @@ export class UpdateNickDto {
     description: '유저 닉네임, 입력안하면 랜덤생성',
   })
   user_nick: string;
-
-  @IsOptional()
-  user_like_staId: number;
 }

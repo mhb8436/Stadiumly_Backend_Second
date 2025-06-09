@@ -22,8 +22,8 @@ export class CafeteriaService {
         cafe_name: true,
         cafe_image: true,
         cafe_location: true,
+        cafe_floor: true,
         cafe_category: true,
-        
       },
     })) as CafeteriaListDto[];
   }

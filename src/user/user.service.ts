@@ -181,6 +181,9 @@ export class UserService {
     };
   }
 
+  // 메인페이지 마스코트 정보 받아오기
+  async getMascots() {}
+
   /*
     async updateRefreshToken(userId: number, refreshToken: string) {
     const salt = parseInt(

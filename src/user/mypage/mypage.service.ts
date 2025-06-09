@@ -36,20 +36,27 @@ export class MypageService {
   }
 
   // 닉네임 변경
-  async updateNick(
-    user_id: number,
-    newNickName: string,
-    user_like_staId?: number,
-  ) {
+  async updateNick(user_id: number, newNickName: string) {
     let finalNick = newNickName;
 
-    // 만약 닉네임을 입력하지 않았을 경우 랜덤 닉네임 생성
+    const likeTeam = (await this.prisma.user.findFirst({
+      where: { user_id },
+      select: {
+        user_like_staId: true,
+      },
+    })) as { user_like_staId: number } | null;
+
+    // 만약 닉네임을 입력하지 않았을 경우, 랜덤 닉네임 생성
     if (
-      (!newNickName || newNickName.trim() === '') &&
-      user_like_staId !== undefined &&
-      user_like_staId !== null
+      !newNickName ||
+      newNickName.trim() === '' ||
+      !likeTeam ||
+      likeTeam.user_like_staId == 11
     ) {
       finalNick = randomNickMaker(11); // 11은 응원하는 팀 없음
+    } else if (likeTeam.user_like_staId !== 11) {
+      // 닉네임이 입력되었고, 응원하는 팀이 있을 경우
+      finalNick = newNickName.trim();
     }
 
     const data = await this.prisma.user.update({

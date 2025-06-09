@@ -1,9 +1,8 @@
-import { Controller, Post, Body, Param } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserNomalDto } from './user_dto/create-user.dto';
 import { EmailSignInDto } from 'src/auth/dto/signIn-email.dto';
 
-// 회원가입, 탈퇴
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -27,5 +26,10 @@ export class UserController {
   @Post('delete/:id')
   async leaveMembership(@Param('id') user_id: string) {
     return this.userService.deleteUserById(+user_id);
+  }
+
+  @Get('mascots')
+  async getMascots() {
+    return this.userService.getMascots();
   }
 }
