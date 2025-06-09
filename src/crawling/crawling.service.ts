@@ -246,7 +246,7 @@ export class CrawlingService {
 
   // deleteAll records
   // 매일 새벽 2시에 데이터 지우도록 함
-  @Cron('02 * * *', {
+  @Cron('0 2 * * *', {
     name: 'delete-old-pitcher',
     timeZone: 'Asia/Seoul',
   }) // 지금은 막아둘게영
