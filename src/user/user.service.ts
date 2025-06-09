@@ -46,7 +46,6 @@ export class UserService {
 
   // 이메일로 가입한 회원 아이디로 로그인
   async userFindByUserID(emailSignInDto: EmailSignInDto) {
-    console.time('파인바이 아이디 prismaQuery');
     const plainPWD = emailSignInDto.user_pwd;
 
     const user = await this.prisma.user.findUnique({
@@ -54,7 +53,6 @@ export class UserService {
         user_cus_id: emailSignInDto.user_cus_id,
       },
     });
-    console.timeEnd('파인바이 아이디 prismaQuery');
 
     if (!user) {
       throw new HttpException(
