@@ -212,7 +212,9 @@ export class AuthService {
     try {
       // 캐시에 저장
       // ...? 왜 TTl을 0으로 하면 오류안남?
-      await this.cacheManager.set(key, code, 180000); // TTL을 0으로 설정하여 만료되지 않게 함
+      await this.cacheManager.set<string>(key, code, {
+        ttl: 180000,
+      } as any); // TTL을 0으로 설정하여 만료되지 않게 함
 
       // 저장 직후 확인
       const confirm = await this.cacheManager.get<string>(key);
@@ -249,7 +251,9 @@ export class AuthService {
       }
 
       await this.cacheManager.del(key);
-      await this.cacheManager.set(`verified-${trimEmail}`, true, 180000);
+      await this.cacheManager.set<boolean>(`verified-${trimEmail}`, true, {
+        ttl: 180,
+      } as any);
       return { message: '이메일 인증 성공', status: 'success' };
     } catch (error) {
       console.error('인증 코드 검증 중 에러 발생:', error);
@@ -272,7 +276,9 @@ export class AuthService {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     // 캐시에 저장
-    await this.cacheManager.set(`find-pwd-${user_email}`, code, 180000);
+    await this.cacheManager.set<string>(`find-pwd-${user_email}`, code, {
+      ttl: 180000,
+    } as any);
     console.log('비번 찾기 이메일 인증 토큰 : ', code);
     // 이 이메일로 가입한게 맞으면 인증 토큰 쏴주기
     await this.mailService.sendVerificationCode(user_email, code);
@@ -349,10 +355,12 @@ export class AuthService {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     await this.mailService.sendVerificationCode(userEmail!, code);
 
-    await this.cacheManager.set(
+    await this.cacheManager.set<string>(
       `find-id-${userEmail}`,
       code,
-      180000,
+      {
+        ttl: 180000,
+      } as any,
       // TTL을 0으로 설정하여 만료되지 않게 함
     );
 
