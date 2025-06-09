@@ -45,6 +45,7 @@ export class AuthService {
     });
 
     await this.userService.updateRefreshToken(user.user_id, refreshToken);
+    const userData = await this.userService;
 
     return {
       access_token: accessToken,
@@ -118,14 +119,18 @@ export class AuthService {
     user_cus_id: string,
     user_pwd: string,
   ): Promise<AuthUser | null> {
+    console.time('밸리데이트 유저 시간: ');
     const user = await this.userService.userFindByUserID({
       user_cus_id,
       user_pwd,
     });
+    console.timeEnd('밸리데이트 유저 시간: ');
     if (!user || !user.user_cus_id) return null;
     if (!user || !user.user_pwd) return null;
 
+    console.time('비크립트 비교 시간');
     const isMatch = await bcrypt.compare(user_pwd, user.user_pwd);
+    console.timeEnd('비크립트 비교 시간');
     if (!isMatch) return null;
 
     const { user_pwd: _, user_refreshtoken: __, ...safeUser } = user; // user_pwd 제거
@@ -186,6 +191,7 @@ export class AuthService {
     if (user) {
       throw new UnauthorizedException('이미 사용중인 아이디입니다.');
     }
+
     return {
       message: '사용 가능한 아이디입니다.',
       status: 'success',

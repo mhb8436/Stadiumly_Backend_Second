@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetStadiumDetailDto {
-  @ApiProperty({ example: 'http://imageURL', description: '선발투수 데이터 받아옴' })
+  @ApiProperty({
+    example: 'http://imageURL',
+    description: '선발투수 데이터 받아옴',
+  })
   pit_broad_image: string;
   @ApiProperty({ example: '18:30' })
   pit_game_time: string;

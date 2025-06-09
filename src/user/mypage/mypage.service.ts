@@ -39,7 +39,7 @@ export class MypageService {
   async updateNick(user_id: number, newNickName: string) {
     let finalNick = newNickName;
 
-    const likeTeam = (await this.prisma.user.findFirst({
+    const likeTeam = (await this.prisma.user.findUnique({
       where: { user_id },
       select: {
         user_like_staId: true,
@@ -77,7 +77,7 @@ export class MypageService {
 
   // 비밀번호 변경
   async changePWD(user_id: number, newPWD: string, currentPWD: string) {
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: { user_id },
       select: { user_pwd: true },
     });
@@ -89,13 +89,13 @@ export class MypageService {
       );
     }
     //??? 왜 자꾸 현제 비밀번호가 틀려따고하냐
-    (async () => {
-      const result = await bcrypt.compare(
-        'qwer1234',
-        '$2b$18$8ilcZve0ulwjuicyVSC58.EeJT1ocY.DhE5MLSmTV8.ULgw494/u6',
-      );
-      console.log(result); // true or false
-    })();
+    // (async () => {
+    //   const result = await bcrypt.compare(
+    //     'qwer1234',
+    //     '$2b$18$8ilcZve0ulwjuicyVSC58.EeJT1ocY.DhE5MLSmTV8.ULgw494/u6',
+    //   );
+    //   console.log(result); // true or false
+    // })();
 
     // 현재비밀번호와 입력한 (현재)비밀번호가 일치하는지
     const isCurrentMatch = await bcrypt.compare(
@@ -116,7 +116,7 @@ export class MypageService {
       );
     }
     const salt = parseInt(
-      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
+      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '10',
     );
 
     const hashedPWD = await bcrypt.hash(newPWD, salt);

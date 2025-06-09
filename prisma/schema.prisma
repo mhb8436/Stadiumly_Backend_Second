@@ -96,6 +96,7 @@ model StartPitcher {
   createdAt       DateTime @default(now())
 }
 
+
 model ChatRoom {
   id       Int       @id @default(autoincrement())
   name     String

@@ -24,7 +24,7 @@ services:
       - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
       - OLLAMA_BASE_URL=http://ollama:11434 # ollama 서비스 주소
-      - BCRYPT_SALT_ROUNDS=18
+      - BCRYPT_SALT_ROUNDS=10
 
       - JWT_ACCESS_SECRET=your_jwt_secret_here
       - JWT_EXPIRE=your_jwt_expiration_time_here

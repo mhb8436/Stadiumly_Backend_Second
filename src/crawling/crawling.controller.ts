@@ -19,4 +19,9 @@ export class CrawlingController {
   async deleteForNextPitcher() {
     await this.crawlingService.deleteAllPitcher();
   }
+
+  @Post('delete-all-pitcher')
+  async deleteAllPitcher() {
+    return this.crawlingService.deleteAllPitcher();
+  }
 }

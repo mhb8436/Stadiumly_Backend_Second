@@ -58,10 +58,10 @@ export class CrawlingService {
 
   // css 선택자로 크롤링하기
   // 배포시 주석해제 @@
-  // @Cron(CronExpression.EVERY_DAY_AT_6AM, {
-  //   name: 'delete-old-pitcher',
-  //   timeZone: 'Asia/Seoul',
-  // })
+  @Cron(CronExpression.EVERY_DAY_AT_6AM, {
+    name: 'bring-new-pitcher',
+    timeZone: 'Asia/Seoul',
+  })
   async crawlerStartPither(): Promise<any> {
     console.log('crawlerStartPither');
     const URL = 'https://www.koreabaseball.com/Schedule/GameCenter/Main.aspx';
@@ -246,10 +246,10 @@ export class CrawlingService {
 
   // deleteAll records
   // 매일 새벽 2시에 데이터 지우도록 함
-  // @Cron('02 * * *', {
-  //   name: 'delete-old-pitcher',
-  //   timeZone: 'Asia/Seoul',
-  // }) // 지금은 막아둘게영
+  @Cron('02 * * *', {
+    name: 'delete-old-pitcher',
+    timeZone: 'Asia/Seoul',
+  }) // 지금은 막아둘게영
   async deleteAllPitcher(): Promise<any> {
     try {
       await this.prisma.startPitcher.deleteMany();

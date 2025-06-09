@@ -19,7 +19,7 @@ export class UserService {
   async signUpWithEmail(signupform: CreateUserNomalDto) {
     console.log('유저 서비스 회원가입 들어옴 :');
     const salt = parseInt(
-      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
+      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '10',
     );
     const hashedPWD = await bcrypt.hash(signupform.user_pwd, salt);
 
@@ -46,13 +46,15 @@ export class UserService {
 
   // 이메일로 가입한 회원 아이디로 로그인
   async userFindByUserID(emailSignInDto: EmailSignInDto) {
+    console.time('파인바이 아이디 prismaQuery');
     const plainPWD = emailSignInDto.user_pwd;
 
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: {
         user_cus_id: emailSignInDto.user_cus_id,
       },
     });
+    console.timeEnd('파인바이 아이디 prismaQuery');
 
     if (!user) {
       throw new HttpException(
@@ -73,7 +75,7 @@ export class UserService {
   }
 
   async findUserById(userID: number) {
-    return await this.prisma.user.findFirst({
+    return await this.prisma.user.findUnique({
       where: {
         user_id: userID,
       },
@@ -87,7 +89,7 @@ export class UserService {
 
   // 이미 존재하는 회원인지 이메일로 확인 && 같은 이메일로 회원가입한적 있는지 확인
   async isExistEmail(user_email: string) {
-    const exist = await this.prisma.user.findFirst({
+    const exist = await this.prisma.user.findUnique({
       where: {
         user_email: user_email,
       },
@@ -102,7 +104,7 @@ export class UserService {
   }
 
   async isExistUserId(user_cus_id: string) {
-    const exist = await this.prisma.user.findFirst({
+    const exist = await this.prisma.user.findUnique({
       where: {
         user_cus_id: user_cus_id,
       },
@@ -121,7 +123,7 @@ export class UserService {
   async updateUserPassword(user_email: string, new_pwd: string) {
     console.log('유저 서비스 비번 바꾸기 들어옴 : ', user_email, new_pwd);
     const salt = parseInt(
-      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
+      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '10',
     );
     const hashedPWD = await bcrypt.hash(new_pwd, salt);
 
@@ -149,7 +151,7 @@ export class UserService {
 
     if (refreshToken) {
       const salt = parseInt(
-        this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
+        this.config.get<string>('BCRYPT_SALT_ROUNDS') || '10',
       );
       hashedToken = await bcrypt.hash(refreshToken, salt);
     }
@@ -187,7 +189,7 @@ export class UserService {
   /*
     async updateRefreshToken(userId: number, refreshToken: string) {
     const salt = parseInt(
-      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '18',
+      this.config.get<string>('BCRYPT_SALT_ROUNDS') || '10',
     );
     const hashedToken = await bcrypt.hash(refreshToken, salt);
 
