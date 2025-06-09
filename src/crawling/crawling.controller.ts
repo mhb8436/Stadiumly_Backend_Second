@@ -24,4 +24,7 @@ export class CrawlingController {
   async deleteAllPitcher() {
     return this.crawlingService.deleteAllPitcher();
   }
+
+  @Get('cafeteria-crawl')
+  async getCafeteriaCrawl(): Promise<any> {}
 }

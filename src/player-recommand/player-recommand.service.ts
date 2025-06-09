@@ -20,5 +20,7 @@ export class PlayerRecommandService {
         reco_stadiumId: true,
       },
     });
+
+    return data;
   }
 }

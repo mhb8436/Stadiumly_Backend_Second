@@ -257,4 +257,6 @@ export class CrawlingService {
       console.error(error);
     }
   }
+
+  // 카페테리아
 }
