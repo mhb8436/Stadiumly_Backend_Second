@@ -12,6 +12,9 @@ export class CafeteriaService {
     location: string,
   ): Promise<CafeteriaListDto[]> {
     const staIdNum = parseInt(stadiumId); // string으로 받아오기 때문에 number로 치환해주기
+
+    console.log('카페테리아 서비스 : ');
+    console.log(staIdNum, location);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     return (await this.prisma.cafeteria.findMany({
       where: {
