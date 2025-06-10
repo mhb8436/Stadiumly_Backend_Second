@@ -20,6 +20,7 @@ import { findIdEmailVerifyDto } from './dto/find-id-email-verify.dto';
 import { changePwdVerifyDto } from './dto/change-pwd-verify.dto';
 import { findPwdByEmailDto } from './dto/find-pwd-by-emial.dto';
 import { findIdByEmailDto } from './dto/find-id-by-email.dto';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('auth')
 export class AuthController {
@@ -35,6 +36,7 @@ export class AuthController {
   }
 
   // 회원 가입페이지에서 이메일 중복확인
+  @CacheTTL(6000)
   @Post('check-email-unique')
   async checkEmailUnique(@Body() body: CheckUniqueEmailDto) {
     return this.authService.checkEmailUnique(body.email);

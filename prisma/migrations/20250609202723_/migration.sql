@@ -9,6 +9,7 @@ CREATE TABLE "User" (
     "user_status" INTEGER NOT NULL DEFAULT 0,
     "user_refreshtoken" TEXT,
     "user_like_staId" INTEGER NOT NULL,
+    "user_email_token" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
 );

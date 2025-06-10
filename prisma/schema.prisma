@@ -17,6 +17,7 @@ model User {
   user_status       Int        @default(0)
   user_refreshtoken String?
   user_like_staId   Int
+  user_email_token String?
   AnonyUser         AnonyUser?
   AppleUSer         AppleUser?
   favorits          Favorit[]

@@ -393,7 +393,7 @@ export class AuthService {
       );
     }
 
-    // await this.cacheManager.del(`find-id-${user_email}`);
+    await this.cacheManager.del(`find-id-${user_email}`);
     return {
       user_cus_id: user.user_cus_id,
       status: 'success',

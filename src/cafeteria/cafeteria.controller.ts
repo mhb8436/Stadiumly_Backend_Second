@@ -6,7 +6,7 @@ import { ApiParam, ApiQuery } from '@nestjs/swagger';
 export class CafeteriaController {
   constructor(private readonly cafeteriaService: CafeteriaService) {}
 
-  @Get(':id')
+  @Get('/:sta_id')
   @ApiParam({
     name: 'sta_Id',
     description: '노션 백엔드 요청 구장 아이디 문서 참고 (예: 7)',
@@ -19,7 +19,7 @@ export class CafeteriaController {
     required: true,
   })
   async getCafeteriaListById(
-    @Param('id') sta_id: string,
+    @Param('sta_id') sta_id: string,
     @Query('location') location: string,
   ) {
     console.log('카페테리아 컨트롤렁 : ');
