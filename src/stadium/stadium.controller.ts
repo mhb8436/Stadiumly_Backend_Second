@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { StadiumService } from './stadium.service';
+import { ApiParam } from '@nestjs/swagger';
 
 @Controller('stadium')
 export class StadiumController {
@@ -20,6 +21,11 @@ export class StadiumController {
     return data;
   }
 
+  @ApiParam({
+    name: 'sta_team',
+    description: '조회하려는 팀 이름 (예: LG, 두산, 한화 등) ',
+    example: 'LG',
+  })
   @Post('/startpitcher/:sta_team')
   async getStartPitcherData(@Body('sta_team') sta_team: string) {
     const data = await this.stadiumService.getStartPitcherData(sta_team);
