@@ -49,4 +49,28 @@ export class StadiumService {
 
     return data as GetStadiumDetailDto;
   }
+
+  async getStartPitcherData(sta_team: string): Promise<GetStadiumDetailDto> {
+    const data = await this.prisma.startPitcher.findFirst({
+      where: {
+        pit_home_name: sta_team,
+      },
+      select: {
+        pit_broad_image: true,
+        pit_game_time: true,
+        pit_home_name: true,
+        pit_home_team: true,
+        pit_home_image: true,
+        pit_away_name: true,
+        pit_away_team: true,
+        pit_away_image: true,
+        pit_game_id: true,
+      },
+    });
+
+    if (!data) {
+      throw new Error(`No data found for team: ${sta_team}`);
+    }
+    return data as GetStadiumDetailDto;
+  }
 }

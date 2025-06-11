@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { StadiumService } from './stadium.service';
 
 @Controller('stadium')
@@ -17,6 +17,12 @@ export class StadiumController {
   @Get('/detail')
   async getStadiumDetailData(@Body('teamname') teamname: string) {
     const data = await this.stadiumService.getStadiumByTeamName(teamname);
+    return data;
+  }
+
+  @Post('/startpitcher/:sta_team')
+  async getStartPitcherData(@Body('sta_team') sta_team: string) {
+    const data = await this.stadiumService.getStartPitcherData(sta_team);
     return data;
   }
 }
